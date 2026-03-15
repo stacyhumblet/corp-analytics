@@ -244,7 +244,7 @@
 
 <script>
 /* ── Config ──────────────────────────────────────────────────── */
-const ANALYTICS_URL = 'https://script.google.com/macros/s/AKfycbxpUeVRBwC2vsCfFucLp4YobaWxNwwWvS19yI5-TcdctoOHgaN2XrlicdvImKTUK-txbw/exec';
+const ANALYTICS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1j165dsa1a-DDapOCgyBLrJQ_UBa4LzCWdWez4_obLD0/export?format=csv&gid=89504717';
 
 /* ── Category / color config ─────────────────────────────────── */
 const APP_CATEGORIES = {
@@ -279,17 +279,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadData() {
-  fetch(ANALYTICS_URL)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
+  Papa.parse(ANALYTICS_CSV_URL, {
+    download: true,
+    header: true,
+    complete: function(results) {
       try {
-        allRows = (data.rows || []).filter(function(r) {
-          return r['Event Type'] && r.Timestamp;
+        allRows = (results.data || []).filter(function(r) {
+          return r['Event Type'] && r['Timestamp'];
         });
-        if (data.error) console.error(data.error);
 
         if (allRows.length) {
-          var latest = allRows.map(function(r) { return new Date(r.Timestamp); }).sort(function(a,b){ return b-a; })[0];
+          var latest = allRows.map(function(r) { return new Date(r['Timestamp']); }).sort(function(a,b){ return b-a; })[0];
           document.getElementById('lastUpdated').textContent =
             'Last updated: ' + latest.toLocaleDateString(undefined, {month:'short',day:'numeric',year:'numeric'});
         }
@@ -299,11 +299,12 @@ function loadData() {
         console.error(e);
         showError();
       }
-    })
-    .catch(function(e) {
+    },
+    error: function(e) {
       console.error(e);
       showError();
-    });
+    }
+  });
 }
 
 function showError() {
@@ -583,5 +584,6 @@ if (!Object.entries) Object.entries = function(obj) {
   return Object.keys(obj).map(function(k){ return [k, obj[k]]; });
 };
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </body>
 </html>
