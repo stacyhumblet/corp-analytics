@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools Suite — Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    /* ── Design tokens ──────────────────────────────────────────── */
+    :root {
+      --color-bg:          #0f1117;
+      --color-surface:     #1a1d27;
+      --color-surface-2:   #22263a;
+      --color-border:      #2d3148;
+      --color-primary:     #5b7bff;
+      --color-primary-dim: rgba(91,123,255,0.15);
+      --color-text:        #e8eaf6;
+      --color-text-muted:  #8891b4;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
+      --transition: 0.2s ease;
+    }
+
+    /* ── Reset ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,17,23,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 0 24px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .brand-icon { font-size: 30px; color: var(--color-primary); }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .brand-sub { font-size: 11px; color: var(--color-text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
+
+    .header-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .range-tabs {
+      display: flex; background: var(--color-surface);
+      border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 3px; gap: 2px;
+    }
+    .range-tab {
+      padding: 5px 13px; border-radius: 9px;
+      font-size: 12px; font-weight: 500; color: var(--color-text-muted);
+      border: none; background: transparent; cursor: pointer;
+      transition: all var(--transition); font-family: inherit;
+    }
+    .range-tab:hover { color: var(--color-text); }
+    .range-tab.active { background: var(--color-surface-2); color: var(--color-text); box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
+
+    .icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px;
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm); color: var(--color-text-muted);
+      cursor: pointer; transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .icon-btn:hover { color: var(--color-text); border-color: var(--color-primary); background: var(--color-primary-dim); }
+    .icon-btn .material-symbols-outlined { font-size: 20px; }
+
+    /* ── Main ───────────────────────────────────────────────────── */
+    main { flex: 1; }
+    .analytics-content { max-width: 900px; margin: 0 auto; padding: 24px 24px 48px; }
+
+    /* ── Stat cards ─────────────────────────────────────────────── */
+    .analytics-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); padding: 24px 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+    }
+    .stat-card .stat-icon { font-size: 28px; color: var(--color-primary); opacity: 0.8; }
+    .stat-value { font-size: 36px; font-weight: 700; letter-spacing: -1px; color: var(--color-text); line-height: 1; }
+    .stat-label { font-size: 12px; font-weight: 500; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.7px; }
+
+    /* ── Section headings ───────────────────────────────────────── */
+    .analytics-section { margin-bottom: 32px; }
+    .analytics-section-heading {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.9px;
+      color: var(--color-text-muted);
+    }
+    .analytics-section-heading::after { content: ''; flex: 1; height: 1px; background: var(--color-border); }
+    .chart-sub { font-size: 10px; font-weight: 400; text-transform: none; letter-spacing: 0; opacity: 0.7; margin-left: 4px; }
+
+    /* ── Stacked time chart ─────────────────────────────────────── */
+    .time-chart {
+      display: flex; align-items: flex-end; gap: 2px;
+      height: 150px; position: relative;
+    }
+    .time-bar-col {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; height: 100%; cursor: default;
+    }
+    .time-bar-wrap {
+      flex: 1; width: 100%;
+      display: flex; flex-direction: column-reverse; align-items: stretch;
+    }
+    .time-bar-seg {
+      width: 100%; min-height: 2px;
+      transition: opacity var(--transition);
+    }
+    .time-bar-col:hover .time-bar-seg { opacity: 1 !important; }
+    .time-bar-label {
+      flex-shrink: 0; height: 18px; margin-top: 4px;
+      font-size: 9px; color: var(--color-text-muted); white-space: nowrap; line-height: 18px;
+    }
+
+    /* ── 2-col grid ─────────────────────────────────────────────── */
+    .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+
+    /* ── Day of week heatmap ────────────────────────────────────── */
+    .dow-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+    .dow-cell {
+      background: rgba(91,123,255,calc(0.08 + var(--intensity,0) * 0.72));
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      padding: 10px 4px 8px; text-align: center;
+      display: flex; flex-direction: column; gap: 6px;
+      transition: transform var(--transition); cursor: default;
+    }
+    .dow-cell:hover { transform: translateY(-2px); }
+    .dow-cell.dow-weekend { background: rgba(255,112,67,calc(0.08 + var(--intensity,0) * 0.5)); }
+    .dow-day { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
+    .dow-count { font-size: 18px; font-weight: 700; color: var(--color-text); line-height: 1; }
+
+    /* ── Tool rows ──────────────────────────────────────────────── */
+    .tool-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 0; border-bottom: 1px solid var(--color-border);
+    }
+    .tool-row:last-child { border-bottom: none; }
+    .tool-rank { font-size: 11px; font-weight: 600; color: var(--color-text-muted); width: 20px; text-align: right; flex-shrink: 0; }
+    .tool-name { font-size: 13px; font-weight: 500; color: var(--color-text); width: 200px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tool-bar-wrap { flex: 1; height: 8px; background: var(--color-border); border-radius: 99px; overflow: hidden; }
+    .tool-bar { height: 100%; border-radius: 99px; transition: width 0.6s ease; opacity: 0.85; }
+    .tool-count { font-size: 13px; font-weight: 600; color: var(--color-text-muted); width: 40px; text-align: right; flex-shrink: 0; }
+
+    /* ── Recent activity ────────────────────────────────────────── */
+    .activity-header {
+      display: grid; grid-template-columns: 90px 1fr 1fr 110px;
+      gap: 12px; padding: 6px 0 8px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); margin-bottom: 4px;
+    }
+    .activity-row {
+      display: grid; grid-template-columns: 90px 1fr 1fr 110px;
+      gap: 12px; align-items: center; padding: 9px 0;
+      border-bottom: 1px solid var(--color-border); font-size: 13px;
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-time { color: var(--color-text-muted); font-size: 12px; white-space: nowrap; }
+    .activity-tool { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-user { color: var(--color-text-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 99px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px;
+      background: var(--color-primary-dim); color: var(--color-primary); white-space: nowrap;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    .site-footer {
+      border-top: 1px solid var(--color-border); padding: 14px 24px;
+      display: flex; align-items: center; justify-content: flex-end;
+      font-size: 12px; color: var(--color-text-muted);
+    }
+
+    /* ── Spinner ────────────────────────────────────────────────── */
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin-once { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spin-once { animation: spin-once 0.5s ease; }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .analytics-stats { grid-template-columns: 1fr; }
+      .tool-name { width: 110px; }
+      .chart-grid-2 { grid-template-columns: 1fr; }
+      .activity-header, .activity-row { grid-template-columns: 70px 1fr; }
+      .activity-user, .activity-event { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-icon material-symbols-outlined">bar_chart</span>
+      <div class="brand-text">
+        <span class="brand-title">Tools Suite</span>
+        <span class="brand-sub">Analytics</span>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="range-tabs">
+        <button class="range-tab" onclick="setRange(7)"  data-d="7">7d</button>
+        <button class="range-tab active" onclick="setRange(30)" data-d="30">30d</button>
+        <button class="range-tab" onclick="setRange(90)" data-d="90">90d</button>
+        <button class="range-tab" onclick="setRange(0)"  data-d="0">All</button>
+      </div>
+      <button class="icon-btn" id="refreshBtn" title="Refresh" onclick="onRefresh()">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ─────────────────────────────────────────────────────── -->
+<main>
+  <div class="analytics-content" id="analyticsContent">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:300px;gap:14px;color:var(--color-text-muted);">
+      <div class="spinner"></div><span>Loading analytics…</span>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <span id="lastUpdated"></span>
+</footer>
+
+<script>
+/* ── Category / color config ─────────────────────────────────── */
+const APP_CATEGORIES = {
+  'Actuals Variance':        'Actuals Review',
+  'Capitalization Variance': 'Actuals Review',
+  'Orphans Reporting':       'Portfolio Tools',
+  'Initiative Spend':        'Portfolio Tools',
+  'Resource Utilization':    'Capacity Analysis',
+  'Headcount Tracker':       'Capacity Analysis',
+};
+
+const CATEGORY_COLORS = {
+  'Portfolio Tools':   '#5b7bff',
+  'Actuals Review':    '#e040fb',
+  'Capacity Analysis': '#f9a825',
+  'Other':             '#8891b4',
+};
+
+const CAT_ORDER = ['Portfolio Tools','Actuals Review','Capacity Analysis','Other'];
+
+function appCat(name)   { return APP_CATEGORIES[name] || 'Other'; }
+function appColor(name) { return CATEGORY_COLORS[appCat(name)]; }
+
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+/* ── State ───────────────────────────────────────────────────── */
+let allRows    = [];
+let currentDays = 30;
+
+const _PRELOADED = <?!= dataJson ?>;
+
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    allRows = (_PRELOADED.rows || []).filter(function(r) {
+      return r['Event Type'] && r.Timestamp;
+    });
+    if (_PRELOADED.error) console.error(_PRELOADED.error);
+
+    if (allRows.length) {
+      var latest = allRows.map(function(r) { return new Date(r.Timestamp); }).sort(function(a,b){ return b-a; })[0];
+      document.getElementById('lastUpdated').textContent =
+        'Last updated: ' + latest.toLocaleDateString(undefined, {month:'short',day:'numeric',year:'numeric'});
+    }
+
+    render();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('analyticsContent').innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;color:var(--color-text-muted);">' +
+      '<span class="material-symbols-outlined" style="font-size:48px;opacity:0.4;">error</span>' +
+      '<span>Failed to load analytics data.</span></div>';
+  }
+});
+
+/* ── Range ───────────────────────────────────────────────────── */
+function setRange(days) {
+  currentDays = days;
+  document.querySelectorAll('.range-tab').forEach(function(t) {
+    t.classList.toggle('active', parseInt(t.dataset.d) === days);
+  });
+  render();
+}
+
+function getRows() {
+  if (!currentDays) return allRows;
+  var cutoff = new Date(Date.now() - currentDays * 86400000);
+  return allRows.filter(function(r) { return new Date(r.Timestamp) >= cutoff; });
+}
+
+function onRefresh() {
+  var icon = document.querySelector('#refreshBtn .material-symbols-outlined');
+  icon.classList.add('spin-once');
+  icon.addEventListener('animationend', function() { icon.classList.remove('spin-once'); }, { once: true });
+  render();
+}
+
+/* ── Main render ─────────────────────────────────────────────── */
+function render() {
+  var rows = getRows();
+
+  var totalLaunches = rows.filter(function(r) { return r['Event Type'] === 'page_view'; }).length;
+  var uniqueUsers   = new Set(rows.map(function(r) { return r['User Email']; }).filter(Boolean)).size;
+  var toolsTracked  = new Set(rows.map(function(r) { return r['Web App']; }).filter(Boolean)).size;
+
+  var html = '';
+
+  /* Stat cards */
+  html += '<div class="analytics-stats">';
+  html += statCard(totalLaunches.toLocaleString(), 'Total Launches',  'bar_chart');
+  html += statCard(uniqueUsers.toLocaleString(),   'Unique Users',    'people');
+  html += statCard(toolsTracked.toLocaleString(),  'Tools Tracked',   'grid_view');
+  html += '</div>';
+
+  /* Usage over time */
+  html += buildTimeChart(rows);
+
+  /* 2-col: Day of Week + By Category */
+  html += '<div class="chart-grid-2">';
+  html += buildDow(rows);
+  html += buildByCategory(rows);
+  html += '</div>';
+
+  /* All Tools Ranked */
+  html += buildRanked(rows);
+
+  /* Recent Activity */
+  html += buildActivity(rows);
+
+  document.getElementById('analyticsContent').innerHTML = html;
+}
+
+/* ── Stat card ───────────────────────────────────────────────── */
+function statCard(value, label, icon) {
+  return '<div class="stat-card">' +
+    '<span class="material-symbols-outlined stat-icon">' + icon + '</span>' +
+    '<div class="stat-value">' + value + '</div>' +
+    '<div class="stat-label">' + label + '</div>' +
+  '</div>';
+}
+
+/* ── Stacked usage chart ─────────────────────────────────────── */
+function buildTimeChart(rows) {
+  var rangeLabel = currentDays ? 'last ' + currentDays + ' days' : 'all time';
+
+  var html = '<div class="analytics-section"><div class="analytics-section-heading">Usage Over Time <span class="chart-sub">(' + rangeLabel + ')</span></div>';
+  html += '<div class="time-chart">';
+
+  if (!rows.length) {
+    html += '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:13px;">No data in range</div>';
+    html += '</div></div>';
+    return html;
+  }
+
+  /* Group by date + category */
+  var dayMap = {};
+  rows.forEach(function(r) {
+    var d   = new Date(r.Timestamp);
+    var key = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+    var cat = appCat(r['Web App']);
+    if (!dayMap[key]) dayMap[key] = {};
+    dayMap[key][cat] = (dayMap[key][cat] || 0) + 1;
+  });
+
+  var keys  = Object.keys(dayMap).sort();
+  var start = new Date(keys[0]);
+  var end   = new Date(keys[keys.length-1]);
+  var pts   = [];
+  var cur   = new Date(start);
+  while (cur <= end) {
+    var k = cur.getFullYear() + '-' + pad(cur.getMonth()+1) + '-' + pad(cur.getDate());
+    pts.push({ date: new Date(cur), cats: dayMap[k] || {} });
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  var maxTotal = 0;
+  pts.forEach(function(p) {
+    var t = CAT_ORDER.reduce(function(s,c) { return s + (p.cats[c] || 0); }, 0);
+    if (t > maxTotal) maxTotal = t;
+  });
+  if (!maxTotal) maxTotal = 1;
+
+  pts.forEach(function(p, i) {
+    var total   = CAT_ORDER.reduce(function(s,c) { return s + (p.cats[c]||0); }, 0);
+    var showLbl = (i % Math.max(1, Math.floor(pts.length/7)) === 0) || i === pts.length-1;
+    var lbl     = showLbl ? fmtShort(p.date) : '';
+
+    html += '<div class="time-bar-col" title="' + fmtShort(p.date) + ': ' + total + ' events">';
+    html += '<div class="time-bar-wrap">';
+    CAT_ORDER.forEach(function(cat) {
+      var count = p.cats[cat] || 0;
+      if (!count) return;
+      var pct = (count / maxTotal * 100).toFixed(2);
+      var col = CATEGORY_COLORS[cat];
+      html += '<div class="time-bar-seg" style="height:' + pct + '%;background:' + col + ';opacity:0.7;"></div>';
+    });
+    html += '</div>';
+    html += '<div class="time-bar-label">' + escHTML(lbl) + '</div>';
+    html += '</div>';
+  });
+
+  html += '</div></div>';
+  return html;
+}
+
+/* ── Day of week heatmap ─────────────────────────────────────── */
+function buildDow(rows) {
+  var counts = [0,0,0,0,0,0,0];
+  rows.forEach(function(r) { counts[new Date(r.Timestamp).getDay()]++; });
+  var maxDow = Math.max.apply(null, counts) || 1;
+
+  var order = [1,2,3,4,5,6,0]; // Mon → Sun
+  var html = '<div class="analytics-section" style="margin-bottom:0"><div class="analytics-section-heading">Day of Week</div><div class="dow-grid">';
+  order.forEach(function(i) {
+    var intensity = (counts[i] / maxDow).toFixed(2);
+    var weekend   = (i === 0 || i === 6) ? ' dow-weekend' : '';
+    html +=
+      '<div class="dow-cell' + weekend + '" style="--intensity:' + intensity + '" title="' + DAYS_SHORT[i] + ': ' + counts[i] + '">' +
+        '<div class="dow-day">'   + DAYS_SHORT[i] + '</div>' +
+        '<div class="dow-count">' + counts[i] + '</div>' +
+      '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+/* ── By Category ─────────────────────────────────────────────── */
+function buildByCategory(rows) {
+  var map = {};
+  rows.forEach(function(r) {
+    var cat = appCat(r['Web App']);
+    map[cat] = (map[cat] || 0) + 1;
+  });
+
+  var sorted = Object.entries(map).sort(function(a,b){ return b[1]-a[1]; });
+  var maxCat = sorted.length ? sorted[0][1] : 1;
+
+  var html = '<div class="analytics-section" style="margin-bottom:0"><div class="analytics-section-heading">By Category</div>';
+  if (!sorted.length) {
+    html += '<p style="color:var(--color-text-muted);font-size:13px;">No data yet.</p>';
+  } else {
+    sorted.forEach(function(entry) {
+      var cat = entry[0], count = entry[1];
+      var col = CATEGORY_COLORS[cat] || CATEGORY_COLORS['Other'];
+      var pct = (count / maxCat * 100).toFixed(1);
+      html +=
+        '<div class="tool-row">' +
+          '<div class="tool-name" style="color:' + col + '">' + escHTML(cat) + '</div>' +
+          '<div class="tool-bar-wrap"><div class="tool-bar" style="width:' + pct + '%;background:' + col + '"></div></div>' +
+          '<div class="tool-count">' + count + '</div>' +
+        '</div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+/* ── All Tools Ranked ────────────────────────────────────────── */
+function buildRanked(rows) {
+  var map = {};
+  rows.forEach(function(r) { var a = r['Web App']; if (a) map[a] = (map[a]||0)+1; });
+  var sorted = Object.entries(map).sort(function(a,b){ return b[1]-a[1]; });
+  var maxV = sorted.length ? sorted[0][1] : 1;
+
+  var html = '<div class="analytics-section"><div class="analytics-section-heading">All Tools Ranked</div>';
+  if (!sorted.length) {
+    html += '<p style="color:var(--color-text-muted);font-size:13px;">No tool data yet.</p>';
+  } else {
+    sorted.forEach(function(entry, i) {
+      var name = entry[0], count = entry[1];
+      var col  = appColor(name);
+      var pct  = (count / maxV * 100).toFixed(1);
+      html +=
+        '<div class="tool-row">' +
+          '<div class="tool-rank">' + (i+1) + '</div>' +
+          '<div class="tool-name">'  + escHTML(name) + '</div>' +
+          '<div class="tool-bar-wrap"><div class="tool-bar" style="width:' + pct + '%;background:' + col + '"></div></div>' +
+          '<div class="tool-count">' + count + '</div>' +
+        '</div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+/* ── Recent Activity ─────────────────────────────────────────── */
+function buildActivity(rows) {
+  var sorted = rows.slice().sort(function(a,b){ return new Date(b.Timestamp)-new Date(a.Timestamp); }).slice(0, 50);
+
+  var html = '<div class="analytics-section"><div class="analytics-section-heading">Recent Activity</div>';
+  if (!sorted.length) {
+    html += '<p style="color:var(--color-text-muted);font-size:13px;">No recent activity.</p>';
+  } else {
+    html +=
+      '<div class="activity-header">' +
+        '<div>When</div><div>Tool</div><div>User</div><div>Event</div>' +
+      '</div>';
+    sorted.forEach(function(r) {
+      var col = appColor(r['Web App']);
+      html +=
+        '<div class="activity-row">' +
+          '<div class="activity-time">'  + escHTML(timeAgo(r.Timestamp)) + '</div>' +
+          '<div class="activity-tool" style="color:' + col + '">' + escHTML(r['Web App'] || '—') + '</div>' +
+          '<div class="activity-user">'  + escHTML(r['User Email'] || '—') + '</div>' +
+          '<div class="activity-event"><span class="event-badge">' + escHTML(fmtEvent(r['Event Type'])) + '</span></div>' +
+        '</div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+/* ── Helpers ─────────────────────────────────────────────────── */
+function pad(n) { return String(n).padStart(2,'0'); }
+function fmtShort(d) { return pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+
+function timeAgo(iso) {
+  if (!iso) return '—';
+  var diff  = Date.now() - new Date(iso).getTime();
+  var mins  = Math.floor(diff / 60000);
+  var hours = Math.floor(mins / 60);
+  var days  = Math.floor(hours / 24);
+  if (mins  < 1)  return 'just now';
+  if (mins  < 60) return mins + 'm ago';
+  if (hours < 24) return hours + 'h ago';
+  if (days  < 7)  return days + 'd ago';
+  return new Date(iso).toLocaleDateString();
+}
+
+const EVENT_LABELS = { page_view:'Page View', filter_changed:'Filter', download_csv:'CSV Export', share_link:'Share Link', clear_filters:'Clear Filters' };
+function fmtEvent(e) { return EVENT_LABELS[e] || e; }
+
+function escHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function Object_entries(obj) {
+  return Object.keys(obj).map(function(k){ return [k, obj[k]]; });
+}
+// polyfill for readability above
+if (!Object.entries) Object.entries = Object_entries;
+</script>
+</body>
+</html>
