@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tools Suite — Analytics</title>
+  <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('analytics_theme')||'light')}catch(e){document.documentElement.setAttribute('data-theme','light')}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -201,6 +202,21 @@
       .activity-header, .activity-row { grid-template-columns: 70px 1fr; }
       .activity-user, .activity-event { display: none; }
     }
+
+    /* ── Light mode ─────────────────────────────────────────────── */
+    [data-theme="light"] {
+      --color-bg:          #f4f6fb;
+      --color-surface:     #ffffff;
+      --color-surface-2:   #e8edf5;
+      --color-border:      rgba(0,0,0,.10);
+      --color-primary:     #3d5fcc;
+      --color-primary-dim: rgba(61,95,204,0.12);
+      --color-text:        #1a2142;
+      --color-text-muted:  #5c6690;
+      --shadow-card:       0 4px 24px rgba(0,0,0,0.10);
+    }
+    html[data-theme="light"] { background: #f4f6fb; }
+    [data-theme="light"] .site-header { background: rgba(244,246,251,0.92); }
   </style>
 </head>
 <body>
@@ -225,6 +241,9 @@
       <button class="icon-btn" id="refreshBtn" title="Refresh" onclick="onRefresh()">
         <span class="material-symbols-outlined">refresh</span>
       </button>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme" onclick="toggleTheme()">
+        <span class="material-symbols-outlined" id="themeIcon">light_mode</span>
+      </button>
     </div>
   </div>
 </header>
@@ -243,6 +262,19 @@
 </footer>
 
 <script>
+/* ── Theme ───────────────────────────────────────────────────── */
+function toggleTheme() {
+  var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('analytics_theme', t); } catch(e) {}
+  document.getElementById('themeIcon').textContent = t === 'dark' ? 'light_mode' : 'dark_mode';
+}
+(function() {
+  var t = document.documentElement.getAttribute('data-theme') || 'light';
+  var icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = t === 'dark' ? 'light_mode' : 'dark_mode';
+})();
+
 /* ── Config ──────────────────────────────────────────────────── */
 const ANALYTICS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1j165dsa1a-DDapOCgyBLrJQ_UBa4LzCWdWez4_obLD0/export?format=csv&gid=89504717';
 
