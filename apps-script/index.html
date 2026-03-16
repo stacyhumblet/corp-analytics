@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <style>
-    /* ── Design tokens ──────────────────────────────────────────── */
+    /* ── Flash prevention ────────────────────────────────────────── */
+    html { background: #f0f4f8; }
+    html[data-theme="dark"] { background: #0f1117; }
+
+    /* ── Design tokens (light default) ──────────────────────────── */
     :root {
+      --color-bg:          #f0f4f8;
+      --color-surface:     #ffffff;
+      --color-surface-2:   #e8edf4;
+      --color-border:      rgba(0,0,0,0.09);
+      --color-primary:     #5b7bff;
+      --color-primary-dim: rgba(91,123,255,0.12);
+      --color-text:        #0d1f3c;
+      --color-text-muted:  rgba(13,31,60,0.50);
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+      --transition: 0.2s ease;
+    }
+    [data-theme="dark"] {
       --color-bg:          #0f1117;
       --color-surface:     #1a1d27;
       --color-surface-2:   #22263a;
@@ -19,11 +38,7 @@
       --color-primary-dim: rgba(91,123,255,0.15);
       --color-text:        #e8eaf6;
       --color-text-muted:  #8891b4;
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
       --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
-      --transition: 0.2s ease;
     }
 
     /* ── Reset ──────────────────────────────────────────────────── */
@@ -41,10 +56,11 @@
     /* ── Header ─────────────────────────────────────────────────── */
     .site-header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(15,17,23,0.88);
+      background: rgba(240,244,248,0.92);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--color-border);
     }
+    [data-theme="dark"] .site-header { background: rgba(15,17,23,0.88); }
     .header-inner {
       max-width: 1400px; margin: 0 auto;
       padding: 0 24px; height: 64px;
@@ -222,6 +238,9 @@
         <button class="range-tab" onclick="setRange(90)" data-d="90">90d</button>
         <button class="range-tab" onclick="setRange(0)"  data-d="0">All</button>
       </div>
+      <button class="icon-btn" id="themeBtn" title="Switch to dark mode" onclick="toggleTheme()">
+        <span class="material-symbols-outlined">dark_mode</span>
+      </button>
       <button class="icon-btn" id="refreshBtn" title="Refresh" onclick="onRefresh()">
         <span class="material-symbols-outlined">refresh</span>
       </button>
@@ -243,6 +262,25 @@
 </footer>
 
 <script>
+/* ── Theme ───────────────────────────────────────────────────── */
+(function initTheme() {
+  const saved = localStorage.getItem('analytics_theme') || 'light';
+  applyTheme(saved);
+})();
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.querySelector('.material-symbols-outlined').textContent = t === 'dark' ? 'light_mode' : 'dark_mode';
+    btn.title = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+  localStorage.setItem('analytics_theme', t);
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+}
+
 /* ── Category / color config ─────────────────────────────────── */
 const APP_CATEGORIES = {
   'Actuals Variance':        'Actuals Review',
